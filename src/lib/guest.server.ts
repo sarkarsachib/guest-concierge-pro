@@ -50,11 +50,11 @@ export async function requireStay(userId: string) {
   return s;
 }
 
-export type OrderLineInput = { menuItemId: string; qty: number; options?: string[] };
+export type OrderLineInput = { menuItemId: string; qty: number; options?: string[] | undefined };
 
 export async function placeOrderCore(
   ctx: StayContext,
-  input: { items: OrderLineInput[]; destinationRoom?: string; notes?: string; idempotencyKey: string; source?: string },
+  input: { items: OrderLineInput[]; destinationRoom?: string | undefined; notes?: string | undefined; idempotencyKey: string; source?: string | undefined },
 ) {
   const admin = await getAdmin();
   if (!ctx.roomChargeEnabled) throw new Error("Room charging is disabled for this stay. Please contact reception.");
@@ -115,7 +115,7 @@ export async function placeOrderCore(
 
 export async function createRequestCore(
   ctx: StayContext,
-  input: { module: string; catalogItemId?: string | null; title?: string; details?: string; scheduledFor?: string | null; quantity?: number; source?: string },
+  input: { module: string; catalogItemId?: string | null | undefined; title?: string | undefined; details?: string | undefined; scheduledFor?: string | null | undefined; quantity?: number | undefined; source?: string | undefined },
 ) {
   const admin = await getAdmin();
   let title = input.title?.slice(0, 120) ?? "Request";
@@ -144,7 +144,7 @@ export async function createRequestCore(
   if (amount > 0) {
     const tax = Math.round(amount * ctx.taxRate);
     await admin.from("folio_charges").insert({
-      hotel_id: ctx.hotelId, stay_id: ctx.stayId, category: input.module[0].toUpperCase() + input.module.slice(1),
+      hotel_id: ctx.hotelId, stay_id: ctx.stayId, category: input.module.charAt(0).toUpperCase() + input.module.slice(1),
       description: title, amount: amount + tax, source_type: "request", source_id: req.id, charged_by_guest_id: ctx.guestId,
     });
   }
