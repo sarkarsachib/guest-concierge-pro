@@ -11,9 +11,11 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as StayRouteImport } from './routes/stay'
 import { Route as ApiConciergeRouteImport } from './routes/api/concierge'
 import { Route as JoinTokenRouteImport } from './routes/join.$token'
 import { Route as QTokenRouteImport } from './routes/q.$token'
+import { Route as StayIndexRouteImport } from './routes/stay.index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -23,6 +25,11 @@ const IndexRoute = IndexRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StayRoute = StayRouteImport.update({
+  id: '/stay',
+  path: '/stay',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiConciergeRoute = ApiConciergeRouteImport.update({
@@ -40,13 +47,20 @@ const QTokenRoute = QTokenRouteImport.update({
   path: '/q/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StayIndexRoute = StayIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => StayRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/stay': typeof StayRouteWithChildren
   '/api/concierge': typeof ApiConciergeRoute
   '/join/$token': typeof JoinTokenRoute
   '/q/$token': typeof QTokenRoute
+  '/stay/': typeof StayIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -54,27 +68,45 @@ export interface FileRoutesByTo {
   '/api/concierge': typeof ApiConciergeRoute
   '/join/$token': typeof JoinTokenRoute
   '/q/$token': typeof QTokenRoute
+  '/stay': typeof StayIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/stay': typeof StayRouteWithChildren
   '/api/concierge': typeof ApiConciergeRoute
   '/join/$token': typeof JoinTokenRoute
   '/q/$token': typeof QTokenRoute
+  '/stay/': typeof StayIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/api/concierge' | '/join/$token' | '/q/$token'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/stay'
+    | '/api/concierge'
+    | '/join/$token'
+    | '/q/$token'
+    | '/stay/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/api/concierge' | '/join/$token' | '/q/$token'
+  to: '/' | '/auth' | '/api/concierge' | '/join/$token' | '/q/$token' | '/stay'
   id:
-    '__root__' | '/' | '/auth' | '/api/concierge' | '/join/$token' | '/q/$token'
+    | '__root__'
+    | '/'
+    | '/auth'
+    | '/stay'
+    | '/api/concierge'
+    | '/join/$token'
+    | '/q/$token'
+    | '/stay/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
+  StayRoute: typeof StayRouteWithChildren
   ApiConciergeRoute: typeof ApiConciergeRoute
   JoinTokenRoute: typeof JoinTokenRoute
   QTokenRoute: typeof QTokenRoute
@@ -94,6 +126,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/stay': {
+      id: '/stay'
+      path: '/stay'
+      fullPath: '/stay'
+      preLoaderRoute: typeof StayRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/concierge': {
@@ -117,12 +156,30 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof QTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/stay/': {
+      id: '/stay/'
+      path: '/'
+      fullPath: '/stay/'
+      preLoaderRoute: typeof StayIndexRouteImport
+      parentRoute: typeof StayRoute
+    }
   }
 }
+
+interface StayRouteChildren {
+  StayIndexRoute: typeof StayIndexRoute
+}
+
+const StayRouteChildren: StayRouteChildren = {
+  StayIndexRoute: StayIndexRoute,
+}
+
+const StayRouteWithChildren = StayRoute._addFileChildren(StayRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
+  StayRoute: StayRouteWithChildren,
   ApiConciergeRoute: ApiConciergeRoute,
   JoinTokenRoute: JoinTokenRoute,
   QTokenRoute: QTokenRoute,
