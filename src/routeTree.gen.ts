@@ -16,6 +16,10 @@ import { Route as ApiConciergeRouteImport } from './routes/api/concierge'
 import { Route as JoinTokenRouteImport } from './routes/join.$token'
 import { Route as QTokenRouteImport } from './routes/q.$token'
 import { Route as StayIndexRouteImport } from './routes/stay.index'
+import { Route as StayDineRouteImport } from './routes/stay.dine'
+import { Route as StayFolioRouteImport } from './routes/stay.folio'
+import { Route as StayTripsRouteImport } from './routes/stay.trips'
+import { Route as StayServicesModuleRouteImport } from './routes/stay.services.$module'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -52,6 +56,26 @@ const StayIndexRoute = StayIndexRouteImport.update({
   path: '/',
   getParentRoute: () => StayRoute,
 } as any)
+const StayDineRoute = StayDineRouteImport.update({
+  id: '/dine',
+  path: '/dine',
+  getParentRoute: () => StayRoute,
+} as any)
+const StayFolioRoute = StayFolioRouteImport.update({
+  id: '/folio',
+  path: '/folio',
+  getParentRoute: () => StayRoute,
+} as any)
+const StayTripsRoute = StayTripsRouteImport.update({
+  id: '/trips',
+  path: '/trips',
+  getParentRoute: () => StayRoute,
+} as any)
+const StayServicesModuleRoute = StayServicesModuleRouteImport.update({
+  id: '/services/$module',
+  path: '/services/$module',
+  getParentRoute: () => StayRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -60,7 +84,11 @@ export interface FileRoutesByFullPath {
   '/api/concierge': typeof ApiConciergeRoute
   '/join/$token': typeof JoinTokenRoute
   '/q/$token': typeof QTokenRoute
+  '/stay/dine': typeof StayDineRoute
+  '/stay/folio': typeof StayFolioRoute
+  '/stay/trips': typeof StayTripsRoute
   '/stay/': typeof StayIndexRoute
+  '/stay/services/$module': typeof StayServicesModuleRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -68,7 +96,11 @@ export interface FileRoutesByTo {
   '/api/concierge': typeof ApiConciergeRoute
   '/join/$token': typeof JoinTokenRoute
   '/q/$token': typeof QTokenRoute
+  '/stay/dine': typeof StayDineRoute
+  '/stay/folio': typeof StayFolioRoute
+  '/stay/trips': typeof StayTripsRoute
   '/stay': typeof StayIndexRoute
+  '/stay/services/$module': typeof StayServicesModuleRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -78,7 +110,11 @@ export interface FileRoutesById {
   '/api/concierge': typeof ApiConciergeRoute
   '/join/$token': typeof JoinTokenRoute
   '/q/$token': typeof QTokenRoute
+  '/stay/dine': typeof StayDineRoute
+  '/stay/folio': typeof StayFolioRoute
+  '/stay/trips': typeof StayTripsRoute
   '/stay/': typeof StayIndexRoute
+  '/stay/services/$module': typeof StayServicesModuleRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -89,9 +125,23 @@ export interface FileRouteTypes {
     | '/api/concierge'
     | '/join/$token'
     | '/q/$token'
+    | '/stay/dine'
+    | '/stay/folio'
+    | '/stay/trips'
     | '/stay/'
+    | '/stay/services/$module'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/api/concierge' | '/join/$token' | '/q/$token' | '/stay'
+  to:
+    | '/'
+    | '/auth'
+    | '/api/concierge'
+    | '/join/$token'
+    | '/q/$token'
+    | '/stay/dine'
+    | '/stay/folio'
+    | '/stay/trips'
+    | '/stay'
+    | '/stay/services/$module'
   id:
     | '__root__'
     | '/'
@@ -100,7 +150,11 @@ export interface FileRouteTypes {
     | '/api/concierge'
     | '/join/$token'
     | '/q/$token'
+    | '/stay/dine'
+    | '/stay/folio'
+    | '/stay/trips'
     | '/stay/'
+    | '/stay/services/$module'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -163,15 +217,51 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StayIndexRouteImport
       parentRoute: typeof StayRoute
     }
+    '/stay/dine': {
+      id: '/stay/dine'
+      path: '/dine'
+      fullPath: '/stay/dine'
+      preLoaderRoute: typeof StayDineRouteImport
+      parentRoute: typeof StayRoute
+    }
+    '/stay/folio': {
+      id: '/stay/folio'
+      path: '/folio'
+      fullPath: '/stay/folio'
+      preLoaderRoute: typeof StayFolioRouteImport
+      parentRoute: typeof StayRoute
+    }
+    '/stay/trips': {
+      id: '/stay/trips'
+      path: '/trips'
+      fullPath: '/stay/trips'
+      preLoaderRoute: typeof StayTripsRouteImport
+      parentRoute: typeof StayRoute
+    }
+    '/stay/services/$module': {
+      id: '/stay/services/$module'
+      path: '/services/$module'
+      fullPath: '/stay/services/$module'
+      preLoaderRoute: typeof StayServicesModuleRouteImport
+      parentRoute: typeof StayRoute
+    }
   }
 }
 
 interface StayRouteChildren {
+  StayDineRoute: typeof StayDineRoute
+  StayFolioRoute: typeof StayFolioRoute
+  StayTripsRoute: typeof StayTripsRoute
   StayIndexRoute: typeof StayIndexRoute
+  StayServicesModuleRoute: typeof StayServicesModuleRoute
 }
 
 const StayRouteChildren: StayRouteChildren = {
+  StayDineRoute: StayDineRoute,
+  StayFolioRoute: StayFolioRoute,
+  StayTripsRoute: StayTripsRoute,
   StayIndexRoute: StayIndexRoute,
+  StayServicesModuleRoute: StayServicesModuleRoute,
 }
 
 const StayRouteWithChildren = StayRoute._addFileChildren(StayRouteChildren)
