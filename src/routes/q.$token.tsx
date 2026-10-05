@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { resolveRoomQr } from "@/lib/guest.functions";
-import { HotelPublicInfo } from "./index";
+import { HotelPublicInfo } from "@/components/guest/hotel-info";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 
