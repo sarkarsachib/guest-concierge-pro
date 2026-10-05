@@ -152,3 +152,11 @@
     letter-spacing: -0.01em;
   }
 }
+
+@utility clay {
+  background-color: var(--card);
+  border-radius: 1.5rem;
+  box-shadow: 0 10px 24px -12px color-mix(in oklch, var(--foreground) 25%, transparent),
+    inset 0 -4px 0 color-mix(in oklch, var(--foreground) 6%, transparent),
+    inset 0 2px 0 color-mix(in oklch, var(--background) 80%, transparent);
+}

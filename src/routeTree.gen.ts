@@ -10,11 +10,30 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as StayRouteImport } from './routes/stay'
 import { Route as ApiConciergeRouteImport } from './routes/api/concierge'
+import { Route as JoinTokenRouteImport } from './routes/join.$token'
+import { Route as QTokenRouteImport } from './routes/q.$token'
+import { Route as StayIndexRouteImport } from './routes/stay.index'
+import { Route as StayDineRouteImport } from './routes/stay.dine'
+import { Route as StayFolioRouteImport } from './routes/stay.folio'
+import { Route as StayTripsRouteImport } from './routes/stay.trips'
+import { Route as StayServicesModuleRouteImport } from './routes/stay.services.$module'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StayRoute = StayRouteImport.update({
+  id: '/stay',
+  path: '/stay',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiConciergeRoute = ApiConciergeRouteImport.update({
@@ -22,31 +41,129 @@ const ApiConciergeRoute = ApiConciergeRouteImport.update({
   path: '/api/concierge',
   getParentRoute: () => rootRouteImport,
 } as any)
+const JoinTokenRoute = JoinTokenRouteImport.update({
+  id: '/join/$token',
+  path: '/join/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QTokenRoute = QTokenRouteImport.update({
+  id: '/q/$token',
+  path: '/q/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StayIndexRoute = StayIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => StayRoute,
+} as any)
+const StayDineRoute = StayDineRouteImport.update({
+  id: '/dine',
+  path: '/dine',
+  getParentRoute: () => StayRoute,
+} as any)
+const StayFolioRoute = StayFolioRouteImport.update({
+  id: '/folio',
+  path: '/folio',
+  getParentRoute: () => StayRoute,
+} as any)
+const StayTripsRoute = StayTripsRouteImport.update({
+  id: '/trips',
+  path: '/trips',
+  getParentRoute: () => StayRoute,
+} as any)
+const StayServicesModuleRoute = StayServicesModuleRouteImport.update({
+  id: '/services/$module',
+  path: '/services/$module',
+  getParentRoute: () => StayRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/stay': typeof StayRouteWithChildren
   '/api/concierge': typeof ApiConciergeRoute
+  '/join/$token': typeof JoinTokenRoute
+  '/q/$token': typeof QTokenRoute
+  '/stay/dine': typeof StayDineRoute
+  '/stay/folio': typeof StayFolioRoute
+  '/stay/trips': typeof StayTripsRoute
+  '/stay/': typeof StayIndexRoute
+  '/stay/services/$module': typeof StayServicesModuleRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/api/concierge': typeof ApiConciergeRoute
+  '/join/$token': typeof JoinTokenRoute
+  '/q/$token': typeof QTokenRoute
+  '/stay/dine': typeof StayDineRoute
+  '/stay/folio': typeof StayFolioRoute
+  '/stay/trips': typeof StayTripsRoute
+  '/stay': typeof StayIndexRoute
+  '/stay/services/$module': typeof StayServicesModuleRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/stay': typeof StayRouteWithChildren
   '/api/concierge': typeof ApiConciergeRoute
+  '/join/$token': typeof JoinTokenRoute
+  '/q/$token': typeof QTokenRoute
+  '/stay/dine': typeof StayDineRoute
+  '/stay/folio': typeof StayFolioRoute
+  '/stay/trips': typeof StayTripsRoute
+  '/stay/': typeof StayIndexRoute
+  '/stay/services/$module': typeof StayServicesModuleRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/concierge'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/stay'
+    | '/api/concierge'
+    | '/join/$token'
+    | '/q/$token'
+    | '/stay/dine'
+    | '/stay/folio'
+    | '/stay/trips'
+    | '/stay/'
+    | '/stay/services/$module'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/concierge'
-  id: '__root__' | '/' | '/api/concierge'
+  to:
+    | '/'
+    | '/auth'
+    | '/api/concierge'
+    | '/join/$token'
+    | '/q/$token'
+    | '/stay/dine'
+    | '/stay/folio'
+    | '/stay/trips'
+    | '/stay'
+    | '/stay/services/$module'
+  id:
+    | '__root__'
+    | '/'
+    | '/auth'
+    | '/stay'
+    | '/api/concierge'
+    | '/join/$token'
+    | '/q/$token'
+    | '/stay/dine'
+    | '/stay/folio'
+    | '/stay/trips'
+    | '/stay/'
+    | '/stay/services/$module'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthRoute: typeof AuthRoute
+  StayRoute: typeof StayRouteWithChildren
   ApiConciergeRoute: typeof ApiConciergeRoute
+  JoinTokenRoute: typeof JoinTokenRoute
+  QTokenRoute: typeof QTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -58,6 +175,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/stay': {
+      id: '/stay'
+      path: '/stay'
+      fullPath: '/stay'
+      preLoaderRoute: typeof StayRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/concierge': {
       id: '/api/concierge'
       path: '/api/concierge'
@@ -65,12 +196,83 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiConciergeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/join/$token': {
+      id: '/join/$token'
+      path: '/join/$token'
+      fullPath: '/join/$token'
+      preLoaderRoute: typeof JoinTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/q/$token': {
+      id: '/q/$token'
+      path: '/q/$token'
+      fullPath: '/q/$token'
+      preLoaderRoute: typeof QTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/stay/': {
+      id: '/stay/'
+      path: '/'
+      fullPath: '/stay/'
+      preLoaderRoute: typeof StayIndexRouteImport
+      parentRoute: typeof StayRoute
+    }
+    '/stay/dine': {
+      id: '/stay/dine'
+      path: '/dine'
+      fullPath: '/stay/dine'
+      preLoaderRoute: typeof StayDineRouteImport
+      parentRoute: typeof StayRoute
+    }
+    '/stay/folio': {
+      id: '/stay/folio'
+      path: '/folio'
+      fullPath: '/stay/folio'
+      preLoaderRoute: typeof StayFolioRouteImport
+      parentRoute: typeof StayRoute
+    }
+    '/stay/trips': {
+      id: '/stay/trips'
+      path: '/trips'
+      fullPath: '/stay/trips'
+      preLoaderRoute: typeof StayTripsRouteImport
+      parentRoute: typeof StayRoute
+    }
+    '/stay/services/$module': {
+      id: '/stay/services/$module'
+      path: '/services/$module'
+      fullPath: '/stay/services/$module'
+      preLoaderRoute: typeof StayServicesModuleRouteImport
+      parentRoute: typeof StayRoute
+    }
   }
 }
 
+interface StayRouteChildren {
+  StayDineRoute: typeof StayDineRoute
+  StayFolioRoute: typeof StayFolioRoute
+  StayTripsRoute: typeof StayTripsRoute
+  StayIndexRoute: typeof StayIndexRoute
+  StayServicesModuleRoute: typeof StayServicesModuleRoute
+}
+
+const StayRouteChildren: StayRouteChildren = {
+  StayDineRoute: StayDineRoute,
+  StayFolioRoute: StayFolioRoute,
+  StayTripsRoute: StayTripsRoute,
+  StayIndexRoute: StayIndexRoute,
+  StayServicesModuleRoute: StayServicesModuleRoute,
+}
+
+const StayRouteWithChildren = StayRoute._addFileChildren(StayRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthRoute: AuthRoute,
+  StayRoute: StayRouteWithChildren,
   ApiConciergeRoute: ApiConciergeRoute,
+  JoinTokenRoute: JoinTokenRoute,
+  QTokenRoute: QTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

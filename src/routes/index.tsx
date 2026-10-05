@@ -1,24 +1,40 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { getPublicHotel } from "@/lib/guest.functions";
+import { HOTEL_SLUG } from "@/lib/format";
+import { useAuth } from "@/hooks/use-auth";
+import { Button } from "@/components/ui/button";
+import { HotelPublicInfo } from "@/components/guest/hotel-info";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
-  component: Index,
+  head: () => ({
+    meta: [
+      { title: "Beach View — Guest app" },
+      { name: "description", content: "Your Beach View stay in one place: dining, spa, housekeeping, AI concierge and your folio." },
+      { property: "og:title", content: "Beach View — Guest app" },
+      { property: "og:description", content: "Dining, spa, housekeeping, AI concierge and your folio — no download needed." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
+  component: Landing,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
-function Index() {
+function Landing() {
+  const { session } = useAuth();
+  const { data: hotel } = useQuery({ queryKey: ["hotel", HOTEL_SLUG], queryFn: () => getPublicHotel({ data: { slug: HOTEL_SLUG } }) });
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
+    <main className="mx-auto min-h-screen max-w-md px-5 pb-12 pt-10">
+      <div className="clay bg-primary p-7 text-primary-foreground">
+        <img src="/emoji/sun.png" alt="" className="h-20 w-20" />
+        <h1 className="mt-4 text-4xl font-bold leading-tight">{hotel?.name ?? "Beach View"}</h1>
+        <p className="mt-2 opacity-90">{hotel?.tagline ?? "Your stay, one tap away."}</p>
+        <Button asChild size="lg" variant="secondary" className="mt-6 w-full rounded-full">
+          {session ? <Link to="/stay">Open my stay</Link> : <Link to="/auth" search={{ redirect: "/stay" }}>Guest sign in</Link>}
+        </Button>
+      </div>
+      <p className="my-6 text-center text-sm text-muted-foreground">Staying with us? Use the personal link from reception, or sign in and enter your room number and stay code.</p>
+      {hotel && <HotelPublicInfo info={hotel.info} />}
+    </main>
   );
 }
