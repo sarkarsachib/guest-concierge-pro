@@ -31,7 +31,7 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
 
-  useEffect(() => { if (session) nav({ to: target as any, replace: true }); }, [session]);
+  useEffect(() => { if (session) void nav({ to: target as any, replace: true }); }, [session]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -40,7 +40,7 @@ function AuthPage() {
       ? await supabase.auth.signInWithPassword({ email, password })
       : await supabase.auth.signUp({ email, password, options: { emailRedirectTo: `${window.location.origin}${target}` } });
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     if (mode === "up") toast.success("Check your email to confirm your account.");
   }
 
