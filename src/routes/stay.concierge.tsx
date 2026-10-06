@@ -120,7 +120,7 @@ function ProposalCard({ id, p }: { id: string; p: any }) {
         ? p.lines.map((l: any, i: number) => <div key={i} className="flex justify-between"><span>{l.qty}× {l.name}{l.options?.length ? ` (${l.options.join(", ")})` : ""}</span><span>{money(l.unit * l.qty)}</span></div>)
         : <div className="flex justify-between"><span>{p.quantity}× {p.name}{p.scheduledFor ? ` · ${new Date(p.scheduledFor).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })}` : ""}</span><span>{money(p.subtotal)}</span></div>}
       <div className="mt-2 flex justify-between border-t pt-2 font-bold"><span>Total incl. taxes</span><span>{money(p.total)}</span></div>
-      <Button disabled={busy || done} className="mt-3 w-full rounded-full">{done ? "Confirmed ✓" : `Confirm & charge to room`}</Button>
+      <Button onClick={confirm} disabled={busy || done} className="mt-3 w-full rounded-full">{done ? "Confirmed ✓" : `Confirm & charge to room`}</Button>
     </div>
   );
 }
