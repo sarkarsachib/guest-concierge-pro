@@ -23,7 +23,7 @@ function MyStay() {
 
   const tracked = [
     ...(act?.orders ?? []).map((o: any) => ({ id: o.id, kind: "Food", title: o.order_items?.map((i: any) => `${i.qty}× ${i.name}`).join(", "), status: o.status, at: o.created_at, amount: o.total, room: o.rooms?.number })),
-    ...(act?.requests ?? []).map((r: any) => ({ id: r.id, kind: r.module, title: r.title, status: r.status, at: r.created_at, amount: r.amount })),
+    ...(act?.requests ?? []).map((r: any) => ({ id: r.id, kind: r.module, title: r.title, status: r.status, at: r.created_at, amount: r.amount, room: undefined as string | undefined })),
   ].sort((a, b) => b.at.localeCompare(a.at));
 
   const days = new Map<string, any[]>();

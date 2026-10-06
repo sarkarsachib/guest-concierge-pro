@@ -16,6 +16,7 @@ import { Route as ApiConciergeRouteImport } from './routes/api/concierge'
 import { Route as JoinTokenRouteImport } from './routes/join.$token'
 import { Route as QTokenRouteImport } from './routes/q.$token'
 import { Route as StayIndexRouteImport } from './routes/stay.index'
+import { Route as StayConciergeRouteImport } from './routes/stay.concierge'
 import { Route as StayDineRouteImport } from './routes/stay.dine'
 import { Route as StayFolioRouteImport } from './routes/stay.folio'
 import { Route as StayTripsRouteImport } from './routes/stay.trips'
@@ -56,6 +57,11 @@ const StayIndexRoute = StayIndexRouteImport.update({
   path: '/',
   getParentRoute: () => StayRoute,
 } as any)
+const StayConciergeRoute = StayConciergeRouteImport.update({
+  id: '/concierge',
+  path: '/concierge',
+  getParentRoute: () => StayRoute,
+} as any)
 const StayDineRoute = StayDineRouteImport.update({
   id: '/dine',
   path: '/dine',
@@ -84,6 +90,7 @@ export interface FileRoutesByFullPath {
   '/api/concierge': typeof ApiConciergeRoute
   '/join/$token': typeof JoinTokenRoute
   '/q/$token': typeof QTokenRoute
+  '/stay/concierge': typeof StayConciergeRoute
   '/stay/dine': typeof StayDineRoute
   '/stay/folio': typeof StayFolioRoute
   '/stay/trips': typeof StayTripsRoute
@@ -96,6 +103,7 @@ export interface FileRoutesByTo {
   '/api/concierge': typeof ApiConciergeRoute
   '/join/$token': typeof JoinTokenRoute
   '/q/$token': typeof QTokenRoute
+  '/stay/concierge': typeof StayConciergeRoute
   '/stay/dine': typeof StayDineRoute
   '/stay/folio': typeof StayFolioRoute
   '/stay/trips': typeof StayTripsRoute
@@ -110,6 +118,7 @@ export interface FileRoutesById {
   '/api/concierge': typeof ApiConciergeRoute
   '/join/$token': typeof JoinTokenRoute
   '/q/$token': typeof QTokenRoute
+  '/stay/concierge': typeof StayConciergeRoute
   '/stay/dine': typeof StayDineRoute
   '/stay/folio': typeof StayFolioRoute
   '/stay/trips': typeof StayTripsRoute
@@ -125,6 +134,7 @@ export interface FileRouteTypes {
     | '/api/concierge'
     | '/join/$token'
     | '/q/$token'
+    | '/stay/concierge'
     | '/stay/dine'
     | '/stay/folio'
     | '/stay/trips'
@@ -137,6 +147,7 @@ export interface FileRouteTypes {
     | '/api/concierge'
     | '/join/$token'
     | '/q/$token'
+    | '/stay/concierge'
     | '/stay/dine'
     | '/stay/folio'
     | '/stay/trips'
@@ -150,6 +161,7 @@ export interface FileRouteTypes {
     | '/api/concierge'
     | '/join/$token'
     | '/q/$token'
+    | '/stay/concierge'
     | '/stay/dine'
     | '/stay/folio'
     | '/stay/trips'
@@ -217,6 +229,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StayIndexRouteImport
       parentRoute: typeof StayRoute
     }
+    '/stay/concierge': {
+      id: '/stay/concierge'
+      path: '/concierge'
+      fullPath: '/stay/concierge'
+      preLoaderRoute: typeof StayConciergeRouteImport
+      parentRoute: typeof StayRoute
+    }
     '/stay/dine': {
       id: '/stay/dine'
       path: '/dine'
@@ -249,6 +268,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface StayRouteChildren {
+  StayConciergeRoute: typeof StayConciergeRoute
   StayDineRoute: typeof StayDineRoute
   StayFolioRoute: typeof StayFolioRoute
   StayTripsRoute: typeof StayTripsRoute
@@ -257,6 +277,7 @@ interface StayRouteChildren {
 }
 
 const StayRouteChildren: StayRouteChildren = {
+  StayConciergeRoute: StayConciergeRoute,
   StayDineRoute: StayDineRoute,
   StayFolioRoute: StayFolioRoute,
   StayTripsRoute: StayTripsRoute,
