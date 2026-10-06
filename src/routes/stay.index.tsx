@@ -19,7 +19,7 @@ function StayHome() {
       <header className="flex items-start justify-between">
         <div>
           <p className="text-sm text-muted-foreground">{hotel.name} · Room {stay.rooms?.number}</p>
-          <h1 className="text-3xl font-bold">Hello, {me?.display_name?.split(" ")[0] || `Room ${stay.rooms?.number} Guest`}</h1>
+          <h1 className="text-3xl font-bold">Hello, {me?.display_name && !me.display_name.includes("@") ? me.display_name.split(" ")[0] : `Room ${stay.rooms?.number} Guest`}</h1>
         </div>
         <button className="text-xs text-muted-foreground" onClick={() => supabase.auth.signOut()}>Sign out</button>
       </header>
