@@ -1,11 +1,10 @@
 import { createFileRoute, Link, Outlet, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { getMyStay, joinWithCode } from "@/lib/guest.functions";
+import { getMyStay } from "@/lib/guest.functions";
 import { useAuth } from "@/hooks/use-auth";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/stay")({
   head: () => ({
@@ -37,18 +36,24 @@ function StayLayout() {
     if (!loading && !session) nav({ to: "/auth", search: { redirect: "/stay" }, replace: true });
   }, [loading, session]);
   const { data, isLoading } = useQuery({ ...stayQuery, enabled: !!session });
+  // Session exists but no active stay (checked out / revoked): end the session.
+  useEffect(() => {
+    if (session && !isLoading && data === null) {
+      toast.info("Your stay is no longer active.");
+      void supabase.auth.signOut();
+    }
+  }, [session, isLoading, data]);
 
-  if (loading || !session || isLoading) return <main className="p-10 text-center text-muted-foreground">Loading your stay…</main>;
-  if (!data) return <LinkStay />;
+  if (loading || !session || isLoading || !data) return <main className="p-10 text-center text-muted-foreground">Loading your stay…</main>;
 
   return (
     <div className="mx-auto min-h-screen max-w-md pb-28">
       <Outlet />
       <nav className="fixed inset-x-0 bottom-3 z-40 mx-auto max-w-md px-3">
-        <div className="clay flex justify-between px-2 py-2">
+        <div className="clay flex justify-between gap-1 px-2 py-2">
           {NAV.map((n) => (
             <Link key={n.to} to={n.to} activeOptions={{ exact: "exact" in n }}
-              className="flex flex-1 flex-col items-center rounded-2xl py-1 text-[11px] font-semibold text-muted-foreground"
+              className="flex flex-1 flex-col items-center gap-0.5 rounded-2xl py-1.5 text-[11px] font-semibold leading-tight text-muted-foreground"
               activeProps={{ className: "bg-secondary text-foreground" }}>
               <img src={`/emoji/${n.icon}.png`} alt="" className="h-7 w-7" />{n.label}
             </Link>
@@ -56,32 +61,5 @@ function StayLayout() {
         </div>
       </nav>
     </div>
-  );
-}
-
-function LinkStay() {
-  const qc = useQueryClient();
-  const [room, setRoom] = useState("");
-  const [code, setCode] = useState("");
-  const [busy, setBusy] = useState(false);
-  async function submit(e: React.FormEvent) {
-    e.preventDefault();
-    setBusy(true);
-    try {
-      const r = await joinWithCode({ data: { room, code } });
-      if (!r.ok) toast.error(r.error); else qc.invalidateQueries();
-    } catch (err: any) { toast.error(err.message); } finally { setBusy(false); }
-  }
-  return (
-    <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-5">
-      <form onSubmit={submit} className="clay space-y-3 p-7">
-        <img src="/emoji/phone.png" alt="" className="h-16 w-16" />
-        <h1 className="text-2xl font-bold">Link your stay</h1>
-        <p className="text-sm text-muted-foreground">Enter your room number and the stay code from your key-card sleeve, or open the personal link reception sent you.</p>
-        <Input required placeholder="Room number" inputMode="numeric" value={room} onChange={(e) => setRoom(e.target.value)} />
-        <Input required placeholder="Stay code" value={code} onChange={(e) => setCode(e.target.value)} />
-        <Button disabled={busy} size="lg" className="w-full rounded-full">Link stay</Button>
-      </form>
-    </main>
   );
 }
