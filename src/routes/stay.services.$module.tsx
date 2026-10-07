@@ -41,7 +41,7 @@ function ServicePage() {
       <Link to="/stay" className="text-sm text-muted-foreground">← Home</Link>
       <header className="flex items-center gap-3">
         <img src={`/emoji/${meta.emoji}.png`} alt="" className="h-14 w-14" />
-        <div><h1 className="text-3xl font-bold">{meta.label}</h1><p className="text-sm text-muted-foreground">{meta.blurb}</p></div>
+        <div className="space-y-1"><h1 className="text-3xl font-bold leading-tight">{meta.label}</h1><p className="text-sm leading-snug text-muted-foreground">{meta.blurb}</p></div>
       </header>
       <Link to="/stay/concierge" search={{ q: `I need help with ${meta.label.toLowerCase()}` }} className="clay block p-4 text-sm">
         Prefer to just say it? <span className="font-semibold text-primary">Ask the concierge →</span>
@@ -50,7 +50,7 @@ function ServicePage() {
       <div className="space-y-3">
         {items.map((i: any) => (
           <button key={i.id} disabled={!i.available} onClick={() => setPicked(i)} className="clay flex w-full items-center justify-between p-4 text-left disabled:opacity-50">
-            <div><div className="font-semibold">{i.name}</div><div className="text-xs text-muted-foreground">{i.description}{i.duration_minutes ? ` · ${i.duration_minutes} min` : ""}</div></div>
+            <div className="space-y-1"><div className="font-semibold leading-snug">{i.name}</div><div className="text-xs leading-relaxed text-muted-foreground">{i.description}{i.duration_minutes ? ` · ${i.duration_minutes} min` : ""}</div></div>
             <span className="ml-3 whitespace-nowrap font-semibold text-primary">{Number(i.price) > 0 ? money(i.price) : "Free"}</span>
           </button>
         ))}
@@ -59,15 +59,15 @@ function ServicePage() {
 
       <Sheet open={!!picked} onOpenChange={(o) => !o && setPicked(null)}>
         <SheetContent side="bottom" className="rounded-t-3xl">
-          <SheetHeader><SheetTitle>{picked?.name}</SheetTitle></SheetHeader>
-          <div className="space-y-3 px-4 pb-6">
+          <SheetHeader className="pb-4 pr-8 text-left"><SheetTitle className="font-display text-2xl leading-tight">{picked?.name}</SheetTitle></SheetHeader>
+          <div className="space-y-4 pb-2">
             {Number(picked?.price) > 0 && (
-              <div className="flex items-center gap-3"><span className="text-sm">Quantity</span>
-                <Button size="icon-sm" variant="outline" onClick={() => setQty(Math.max(1, qty - 1))}>−</Button><span>{qty}</span>
+              <div className="flex items-center gap-3"><span className="flex-1 text-sm font-medium">Quantity</span>
+                <Button size="icon-sm" variant="outline" onClick={() => setQty(Math.max(1, qty - 1))}>−</Button><span className="w-6 text-center font-semibold">{qty}</span>
                 <Button size="icon-sm" variant="outline" onClick={() => setQty(Math.min(10, qty + 1))}>+</Button></div>
             )}
             {(picked?.duration_minutes || ["spa", "taxi", "experiences", "celebrations"].includes(module)) && (
-              <label className="block text-sm">When?<Input type="datetime-local" value={when} onChange={(e) => setWhen(e.target.value)} className="mt-1" /></label>
+              <label className="block space-y-2 text-sm font-medium"><span>When?</span><Input type="datetime-local" value={when} onChange={(e) => setWhen(e.target.value)} /></label>
             )}
             <Textarea placeholder="Anything we should know?" value={details} onChange={(e) => setDetails(e.target.value)} />
             <Button disabled={busy} size="lg" className="w-full rounded-full" onClick={submit}>
