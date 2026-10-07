@@ -36,47 +36,76 @@ export const resolveRoomQr = createServerFn({ method: "GET" })
     return { hotel: { ...hotel!, info }, room };
   });
 
-export const claimInvite = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((d: { token: string }) => z.object({ token: z.string().min(4).max(100) }).parse(d))
-  .handler(async ({ data, context }) => {
+/**
+ * The only way in: verify against hotel records (personal invite link, or room
+ * number + stay code). On success the server creates a private guest account
+ * bound to that active stay and returns a session. No public sign-up exists.
+ */
+export const verifyStay = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => z.union([
+    z.object({ method: z.literal("invite"), token: z.string().min(4).max(100), name: z.string().trim().max(60).optional() }),
+    z.object({ method: z.literal("code"), room: z.string().trim().min(1).max(10), code: z.string().trim().min(4).max(12), name: z.string().trim().max(60).optional() }),
+  ]).parse(d))
+  .handler(async ({ data }) => {
     const admin = await getAdmin();
-    const { data: inv } = await admin.from("guest_invites").select("*").eq("token_hash", sha256(data.token)).maybeSingle();
-    if (!inv || inv.revoked || new Date(inv.expires_at) < new Date() || inv.uses >= inv.max_uses) {
-      return { ok: false as const, error: "This guest link is invalid or has expired. Please ask reception for a new one." };
-    }
-    const { data: stay } = await admin.from("stays").select("id, hotel_id, status").eq("id", inv.stay_id).single();
-    if (!stay || stay.status !== "active") return { ok: false as const, error: "This stay is no longer active." };
-    const name = (context.claims as any).user_metadata?.full_name ?? (context.claims as any).email ?? "Guest";
-    const { data: existing } = await admin.from("stay_guests").select("id").eq("stay_id", stay.id).eq("user_id", context.userId).maybeSingle();
-    if (!existing) {
-      await admin.from("stay_guests").insert({ stay_id: stay.id, hotel_id: stay.hotel_id, user_id: context.userId, display_name: name });
-      await admin.from("guest_invites").update({ uses: inv.uses + 1 }).eq("id", inv.id);
-    }
-    return { ok: true as const };
-  });
-
-export const joinWithCode = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((d: { room: string; code: string }) =>
-    z.object({ room: z.string().min(1).max(10), code: z.string().min(4).max(12) }).parse(d))
-  .handler(async ({ data, context }) => {
-    const admin = await getAdmin();
+    const { getRequestHeader } = await import("@tanstack/react-start/server");
+    const ip = getRequestHeader("cf-connecting-ip") ?? getRequestHeader("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+    const clientKey = sha256(`ip:${ip}`);
     const since = new Date(Date.now() - 3600_000).toISOString();
     const { count } = await admin.from("verification_attempts").select("id", { count: "exact", head: true })
-      .eq("user_id", context.userId).eq("success", false).gte("created_at", since);
+      .eq("client_key", clientKey).eq("success", false).gte("created_at", since);
     if ((count ?? 0) >= 5) return { ok: false as const, error: "Too many attempts. Please try again in an hour or contact reception." };
-    const { data: stays } = await admin.from("stays").select("id, hotel_id, rooms!inner(number)")
-      .eq("code", data.code.trim()).eq("status", "active").eq("rooms.number", data.room.trim());
-    const stay = stays?.[0];
-    await admin.from("verification_attempts").insert({ user_id: context.userId, kind: "stay_code", success: !!stay });
-    if (!stay) return { ok: false as const, error: "Room number and stay code don't match. Check your key card sleeve." };
-    const name = (context.claims as any).user_metadata?.full_name ?? (context.claims as any).email ?? "Guest";
-    await admin.from("stay_guests").upsert(
-      { stay_id: stay.id, hotel_id: stay.hotel_id, user_id: context.userId, display_name: name },
-      { onConflict: "stay_id,user_id", ignoreDuplicates: true },
-    );
-    return { ok: true as const };
+
+    let stay: { id: string; hotel_id: string; room_number: string } | null = null;
+    let inviteId: string | null = null;
+    let inviteUses = 0;
+    if (data.method === "invite") {
+      const { data: inv } = await admin.from("guest_invites").select("*").eq("token_hash", sha256(data.token)).maybeSingle();
+      if (inv && !inv.revoked && new Date(inv.expires_at) > new Date() && inv.uses < inv.max_uses) {
+        const { data: s } = await admin.from("stays").select("id, hotel_id, status, check_out, rooms(number)").eq("id", inv.stay_id).single();
+        if (s && s.status === "active" && new Date(s.check_out) > new Date()) {
+          stay = { id: s.id, hotel_id: s.hotel_id, room_number: (s.rooms as any)?.number ?? "" };
+          inviteId = inv.id; inviteUses = inv.uses;
+        }
+      }
+    } else {
+      const { data: rows } = await admin.from("stays").select("id, hotel_id, check_out, rooms!inner(number)")
+        .eq("code", data.code).eq("status", "active").eq("rooms.number", data.room).gt("check_out", new Date().toISOString());
+      const s = rows?.[0];
+      if (s) stay = { id: s.id, hotel_id: s.hotel_id, room_number: (s.rooms as any)?.number ?? data.room };
+    }
+    await admin.from("verification_attempts").insert({ client_key: clientKey, kind: data.method, success: !!stay });
+    if (!stay) {
+      return { ok: false as const, error: data.method === "invite"
+        ? "This guest link is invalid or has expired. Please ask reception for a new one."
+        : "We couldn't find an active stay with that room number and stay code." };
+    }
+
+    const displayName = data.name || `Room ${stay.room_number} Guest`;
+    const email = `guest-${crypto.randomUUID()}@guests.stay.invalid`;
+    const password = `${crypto.randomUUID()}${crypto.randomUUID()}`;
+    const { data: created, error: cErr } = await admin.auth.admin.createUser({
+      email, password, email_confirm: true, user_metadata: { full_name: displayName, stay_id: stay.id },
+    });
+    if (cErr || !created.user) return { ok: false as const, error: "Couldn't start your session. Please try again." };
+    await admin.from("stay_guests").insert({ stay_id: stay.id, hotel_id: stay.hotel_id, user_id: created.user.id, display_name: displayName });
+    if (inviteId) await admin.from("guest_invites").update({ uses: inviteUses + 1 }).eq("id", inviteId);
+    await admin.from("audit_logs").insert({ hotel_id: stay.hotel_id, actor_user_id: created.user.id, action: "guest.verified", details: { method: data.method, stay_id: stay.id } });
+
+    const { createClient } = await import("@supabase/supabase-js");
+    const key = process.env["SUPABASE_PUBLISHABLE_KEY"] ?? process.env["SUPABASE_ANON_KEY"]!;
+    const pub = createClient(process.env["SUPABASE_URL"]!, key, {
+      auth: { persistSession: false, autoRefreshToken: false },
+      global: { fetch: (input, init) => {
+        const h = new Headers(init?.headers);
+        if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`) h.delete("Authorization");
+        h.set("apikey", key);
+        return fetch(input, { ...init, headers: h });
+      } },
+    });
+    const { data: signed, error: sErr } = await pub.auth.signInWithPassword({ email, password });
+    if (sErr || !signed.session) return { ok: false as const, error: "Couldn't start your session. Please try again." };
+    return { ok: true as const, accessToken: signed.session.access_token, refreshToken: signed.session.refresh_token };
   });
 
 /** The guest's current stay (or null). Reads via RLS as the user. */
