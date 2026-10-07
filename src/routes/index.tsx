@@ -30,10 +30,10 @@ function Landing() {
         <h1 className="mt-4 text-4xl font-bold leading-tight">{hotel?.name ?? "Beach View"}</h1>
         <p className="mt-2 opacity-90">{hotel?.tagline ?? "Your stay, one tap away."}</p>
         <Button asChild size="lg" variant="secondary" className="mt-6 w-full rounded-full">
-          {session ? <Link to="/stay">Open my stay</Link> : <Link to="/auth" search={{ redirect: "/stay" }}>Guest sign in</Link>}
+          {session ? <Link to="/stay">Open my stay</Link> : <Link to="/auth" search={{ redirect: "/stay" }}>Verify my stay</Link>}
         </Button>
       </div>
-      <p className="my-6 text-center text-sm text-muted-foreground">Staying with us? Use the personal link from reception, or sign in and enter your room number and stay code.</p>
+      <p className="my-6 text-center text-sm text-muted-foreground">Staying with us? Open the personal link from reception, or verify with your room number and stay code.</p>
       {hotel && <HotelPublicInfo info={hotel.info} />}
     </main>
   );

@@ -42,9 +42,9 @@ function Dine() {
   return (
     <main className="space-y-4 px-4 pt-6">
       <h1 className="text-3xl font-bold">In-room dining</h1>
-      <form className="clay flex gap-2 p-3" onSubmit={(e) => { e.preventDefault(); if (text.trim()) nav({ to: "/stay/concierge", search: { q: text } }); }}>
-        <Input value={text} onChange={(e) => setText(e.target.value)} placeholder='"2 butter chicken, 1 biryani, 3 Coke" or "surprise me under ₹800"' className="border-0 shadow-none" />
-        <Button className="rounded-full">Ask</Button>
+      <form className="clay flex items-center gap-2 p-2 pl-3" onSubmit={(e) => { e.preventDefault(); if (text.trim()) nav({ to: "/stay/concierge", search: { q: text } }); }}>
+        <Input value={text} onChange={(e) => setText(e.target.value)} placeholder='"2 butter chicken, 1 biryani, 3 Coke" or "surprise me under ₹800"' className="border-0 bg-transparent shadow-none focus-visible:ring-0" />
+        <Button className="shrink-0 rounded-full px-5">Ask</Button>
       </form>
       <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
         <Chip active={!cat} onClick={() => setCat(null)}>All</Chip>
@@ -57,12 +57,12 @@ function Dine() {
             {i.image_key && menuImages[i.image_key]
               ? <img src={menuImages[i.image_key]} alt={i.name} className="h-20 w-20 rounded-2xl object-cover" />
               : <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-secondary"><img src="/emoji/restaurant.png" alt="" className="h-10 w-10" /></div>}
-            <div className="flex-1">
-              <div className="font-semibold">{i.is_veg ? "🟢" : "🔴"} {i.name}</div>
-              <div className="line-clamp-2 text-xs text-muted-foreground">{i.description}</div>
-              <div className="mt-1 font-semibold text-primary">{money(i.price)}</div>
+            <div className="min-w-0 flex-1 space-y-1">
+              <div className="flex items-center gap-2 font-semibold leading-snug"><span aria-label={i.is_veg ? "Vegetarian" : "Non-vegetarian"} className={`inline-flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-sm border-2 ${i.is_veg ? "border-success" : "border-destructive"}`}><span className={`h-1.5 w-1.5 rounded-full ${i.is_veg ? "bg-success" : "bg-destructive"}`} /></span>{i.name}</div>
+              <div className="line-clamp-2 text-xs leading-relaxed text-muted-foreground">{i.description}</div>
+              <div className="font-semibold text-primary">{money(i.price)}</div>
             </div>
-            <span className="rounded-full bg-accent px-3 py-1 text-sm font-bold text-accent-foreground">{i.available ? "Add" : "Sold out"}</span>
+            <span className="shrink-0 rounded-full bg-accent px-4 py-1.5 text-sm font-bold text-accent-foreground">{i.available ? "Add" : "Sold out"}</span>
           </button>
         ))}
       </div>
@@ -91,11 +91,11 @@ function OptionsSheet({ item, onClose, onAdd }: { item: any; onClose: () => void
   return (
     <Sheet open={!!item} onOpenChange={(o) => { if (!o) { onClose(); setSel({}); } }}>
       <SheetContent side="bottom" className="rounded-t-3xl">
-        <SheetHeader><SheetTitle>{item?.name}</SheetTitle></SheetHeader>
-        <div className="space-y-4 px-4 pb-4">
+        <SheetHeader className="pb-4 pr-8 text-left"><SheetTitle className="font-display text-2xl leading-tight">{item?.name}</SheetTitle></SheetHeader>
+        <div className="space-y-5 pb-2">
           {groups.map((g) => (
             <div key={g.group}>
-              <div className="mb-2 text-sm font-semibold">{g.group} {g.required && <span className="text-accent">· required</span>}</div>
+              <div className="mb-2 flex items-center gap-2 text-sm font-semibold">{g.group}{g.required && <span className="rounded-full bg-accent/15 px-2 py-0.5 text-xs text-accent">Required</span>}</div>
               <div className="flex flex-wrap gap-2">
                 {g.choices.map((c) => {
                   const on = sel[g.group]?.includes(c.name);
@@ -138,11 +138,11 @@ function CartSheet({ open, onOpenChange, cart, setCart, taxRate, onPlaced }: {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="bottom" className="max-h-[90vh] overflow-y-auto rounded-t-3xl">
-        <SheetHeader><SheetTitle>Your order</SheetTitle></SheetHeader>
-        <div className="space-y-3 px-4 pb-6">
+        <SheetHeader className="pb-4 pr-8 text-left"><SheetTitle className="font-display text-2xl leading-tight">Your order</SheetTitle></SheetHeader>
+        <div className="space-y-4 pb-2">
           {cart.map((l) => (
             <div key={l.key} className="flex items-center gap-2">
-              <div className="flex-1"><div className="font-semibold">{l.name}</div>{l.options.length > 0 && <div className="text-xs text-muted-foreground">{l.options.join(", ")}</div>}</div>
+              <div className="min-w-0 flex-1 space-y-1"><div className="font-semibold">{l.name}</div>{l.options.length > 0 && <div className="text-xs text-muted-foreground">{l.options.join(", ")}</div>}</div>
               <Button size="icon-sm" variant="outline" onClick={() => setCart((c) => c.flatMap((x) => x.key === l.key ? (x.qty > 1 ? [{ ...x, qty: x.qty - 1 }] : []) : [x]))}>−</Button>
               <span className="w-5 text-center">{l.qty}</span>
               <Button size="icon-sm" variant="outline" onClick={() => setCart((c) => c.map((x) => x.key === l.key ? { ...x, qty: x.qty + 1 } : x))}>+</Button>
