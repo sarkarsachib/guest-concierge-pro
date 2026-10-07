@@ -16,12 +16,12 @@ function StayHome() {
   const wifi = hotel.info?.wifi;
   return (
     <main className="space-y-5 px-4 pt-6">
-      <header className="flex items-start justify-between">
-        <div>
+      <header className="flex items-start justify-between gap-4">
+        <div className="min-w-0 space-y-1">
           <p className="text-sm text-muted-foreground">{hotel.name} · Room {stay.rooms?.number}</p>
-          <h1 className="text-3xl font-bold">Hello, {me?.display_name && !me.display_name.includes("@") ? me.display_name.split(" ")[0] : `Room ${stay.rooms?.number} Guest`}</h1>
+          <h1 className="text-3xl font-bold leading-tight">Hello, {greetName(me?.display_name, stay.rooms?.number)}</h1>
         </div>
-        <button className="text-xs text-muted-foreground" onClick={() => supabase.auth.signOut()}>Sign out</button>
+        <button className="shrink-0 rounded-full bg-card px-3 py-1.5 text-xs font-semibold text-muted-foreground shadow-sm" onClick={() => supabase.auth.signOut()}>Sign out</button>
       </header>
 
       <Link to="/stay/concierge" className="clay flex items-center gap-4 bg-primary p-5 text-primary-foreground">
