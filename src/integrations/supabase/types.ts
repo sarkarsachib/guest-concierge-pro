@@ -858,25 +858,28 @@ export type Database = {
       }
       verification_attempts: {
         Row: {
+          client_key: string | null
           created_at: string
           id: string
           kind: string
           success: boolean
-          user_id: string
+          user_id: string | null
         }
         Insert: {
+          client_key?: string | null
           created_at?: string
           id?: string
           kind: string
           success: boolean
-          user_id: string
+          user_id?: string | null
         }
         Update: {
+          client_key?: string | null
           created_at?: string
           id?: string
           kind?: string
           success?: boolean
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: []
       }
