@@ -43,7 +43,7 @@ function Dine() {
     <main className="space-y-4 px-4 pt-6">
       <h1 className="text-3xl font-bold">In-room dining</h1>
       <form className="clay flex items-center gap-2 p-2 pl-3" onSubmit={(e) => { e.preventDefault(); if (text.trim()) nav({ to: "/stay/concierge", search: { q: text } }); }}>
-        <Input value={text} onChange={(e) => setText(e.target.value)} placeholder='"2 butter chicken, 1 biryani, 3 Coke" or "surprise me under ₹800"' className="border-0 bg-transparent shadow-none focus-visible:ring-0" />
+        <Input value={text} onChange={(e) => setText(e.target.value)} placeholder="Type an order, e.g. 2 butter chicken" className="border-0 bg-transparent shadow-none focus-visible:ring-0" />
         <Button className="shrink-0 rounded-full px-5">Ask</Button>
       </form>
       <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
