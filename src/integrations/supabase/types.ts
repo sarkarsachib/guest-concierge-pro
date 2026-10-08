@@ -373,6 +373,38 @@ export type Database = {
           },
         ]
       }
+      knowledge_entries: {
+        Row: {
+          body: string
+          created_at: string
+          hotel_id: string
+          id: string
+          title: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          hotel_id: string
+          id?: string
+          title: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          hotel_id?: string
+          id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "knowledge_entries_hotel_id_fkey"
+            columns: ["hotel_id"]
+            isOneToOne: false
+            referencedRelation: "hotels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       menu_categories: {
         Row: {
           hotel_id: string
@@ -512,6 +544,7 @@ export type Database = {
       }
       orders: {
         Row: {
+          approval_status: string
           created_at: string
           destination_room_id: string
           hotel_id: string
@@ -529,6 +562,7 @@ export type Database = {
           total: number
         }
         Insert: {
+          approval_status?: string
           created_at?: string
           destination_room_id: string
           hotel_id: string
@@ -546,6 +580,7 @@ export type Database = {
           total: number
         }
         Update: {
+          approval_status?: string
           created_at?: string
           destination_room_id?: string
           hotel_id?: string
@@ -757,6 +792,44 @@ export type Database = {
           },
         ]
       }
+      staff_members: {
+        Row: {
+          active: boolean
+          created_at: string
+          display_name: string
+          email: string
+          hotel_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          display_name: string
+          email: string
+          hotel_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          display_name?: string
+          email?: string
+          hotel_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_members_hotel_id_fkey"
+            columns: ["hotel_id"]
+            isOneToOne: false
+            referencedRelation: "hotels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       stay_guests: {
         Row: {
           created_at: string
@@ -856,6 +929,35 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          hotel_id: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          hotel_id: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          hotel_id?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_hotel_id_fkey"
+            columns: ["hotel_id"]
+            isOneToOne: false
+            referencedRelation: "hotels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       verification_attempts: {
         Row: {
           client_key: string | null
@@ -888,10 +990,23 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      has_hotel_role: {
+        Args: {
+          _hotel_id: string
+          _roles: Database["public"]["Enums"]["app_role"][]
+        }
+        Returns: boolean
+      }
       is_stay_member: { Args: { _stay_id: string }; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      app_role:
+        | "owner"
+        | "manager"
+        | "reception"
+        | "housekeeping"
+        | "restaurant"
+        | "spa"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1018,6 +1133,15 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: [
+        "owner",
+        "manager",
+        "reception",
+        "housekeeping",
+        "restaurant",
+        "spa",
+      ],
+    },
   },
 } as const
