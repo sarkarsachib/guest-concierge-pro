@@ -11,3 +11,4 @@
 
 - Guest screens live under `/stay/*` (client-side auth gate in `stay.tsx`); public entry points are `/`, `/q/$token` (room QR, public info only) and `/join/$token` (personal invite). Why: QR is a doorway, never an identity.
 - Anything that costs money from the concierge is a proposal card the guest confirms, then executed by server functions that recompute prices. Why: the AI never decides prices or permissions.
+- Guests sign in only via `verifyStay` (invite token or room + stay code against an active stay); it creates a private per-guest account and returns a session. Public sign-up and Google are disabled. Why: only verified active-stay guests may enter.
