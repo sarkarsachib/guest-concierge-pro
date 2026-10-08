@@ -14,7 +14,7 @@ function Folio() {
       <div className="clay bg-primary p-6 text-primary-foreground">
         <div className="text-sm opacity-80">Current balance</div>
         <div className="font-display text-4xl font-bold">{money(total)}</div>
-        <div className="mt-1 text-xs opacity-80">Settled at check-out. Everything charged to your room appears here.</div>
+        <div className="mt-2 text-xs leading-relaxed opacity-80">Settled at check-out. Everything charged to your room appears here.</div>
       </div>
       <div className="clay divide-y divide-border">
         {(data as any[]).map((c) => (

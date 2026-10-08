@@ -49,7 +49,7 @@ function Chat({ initial }: { initial: UIMessage[] }) {
     <main className="flex h-[calc(100dvh-7rem)] flex-col px-3 pt-4">
       <header className="flex items-center gap-3 px-1 pb-2">
         <img src="/emoji/concierge.png" alt="" className="h-11 w-11" />
-        <div><h1 className="text-xl font-bold">Concierge</h1><p className="text-xs text-muted-foreground">Asks before charging anything to your room</p></div>
+        <div className="space-y-0.5"><h1 className="text-xl font-bold leading-tight">Concierge</h1><p className="text-xs leading-snug text-muted-foreground">Asks before charging anything to your room</p></div>
       </header>
       <Conversation className="clay">
         <ConversationContent>
