@@ -6,7 +6,11 @@ import { verifyStay } from "@/lib/guest.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-export async function startStaySession(input: Parameters<typeof verifyStay>[0]["data"]) {
+type VerifyInput =
+  | { method: "invite"; token: string; name?: string | undefined }
+  | { method: "code"; room: string; code: string; name?: string | undefined };
+
+export async function startStaySession(input: VerifyInput) {
   await supabase.auth.signOut();
   const r = await verifyStay({ data: input });
   if (!r.ok) return r;

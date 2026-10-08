@@ -26,13 +26,13 @@ function StayHome() {
 
       <Link to="/stay/concierge" className="clay flex items-center gap-4 bg-primary p-5 text-primary-foreground">
         <img src="/emoji/concierge.png" alt="" className="h-14 w-14" />
-        <div><div className="font-display text-lg font-semibold">Ask the concierge</div><div className="text-sm opacity-85">"Two towels please" · "Dinner for two at 8" · "Plan my day under ₹5,000"</div></div>
+        <div className="space-y-1"><div className="font-display text-lg font-semibold leading-tight">Ask the concierge</div><div className="text-sm opacity-85">"Two towels please" · "Dinner for two at 8" · "Plan my day under ₹5,000"</div></div>
       </Link>
 
       {modules.restaurant && (
         <Link to="/stay/dine" className="clay flex items-center gap-4 p-5">
           <img src="/emoji/restaurant.png" alt="" className="h-14 w-14" />
-          <div><div className="font-display text-lg font-semibold">In-room dining</div><div className="text-sm text-muted-foreground">Order to your room, charged to your folio</div></div>
+          <div className="space-y-1"><div className="font-display text-lg font-semibold leading-tight">In-room dining</div><div className="text-sm text-muted-foreground">Order to your room, charged to your folio</div></div>
         </Link>
       )}
 
@@ -57,4 +57,9 @@ function StayHome() {
       )}
     </main>
   );
+}
+
+function greetName(name: string | null | undefined, room: string | undefined) {
+  if (!name || name.includes("@") || /^Room \S+ Guest$/.test(name)) return `Room ${room ?? ""} Guest`;
+  return name.split(" ")[0];
 }
