@@ -15,6 +15,13 @@
       "when": 1791397313116,
       "tag": "0001_stay_verification_login",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791479946544,
+      "tag": "0002_staff_side",
+      "breakpoints": true
     }
   ]
 }

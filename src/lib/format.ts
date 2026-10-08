@@ -29,4 +29,5 @@ export const STATUS_STEPS = ["received", "assigned", "on_the_way", "delivered"] 
 export const statusLabel: Record<string, string> = {
   received: "Request received", assigned: "Staff assigned", preparing: "Preparing",
   on_the_way: "On the way", delivered: "Delivered", completed: "Completed", cancelled: "Cancelled",
+  pending_approval: "Waiting for hotel approval",
 };

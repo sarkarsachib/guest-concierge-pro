@@ -32,12 +32,18 @@ export async function handleConcierge(request: Request) {
   const messages = (body.messages ?? []).slice(-40);
   const admin = await getAdmin();
 
-  const [{ data: hotel }, { data: menu }, { data: catalog }, { data: stay }] = await Promise.all([
-    admin.from("hotels").select("name, currency, tax_rate, info, ai_rules, approval_threshold").eq("id", ctx.hotelId).single(),
+  const [{ data: hotel }, { data: menuAll }, { data: catalogAll }, { data: stay }, { data: knowledge }] = await Promise.all([
+    admin.from("hotels").select("name, currency, tax_rate, info, ai_rules, approval_threshold, modules").eq("id", ctx.hotelId).single(),
     admin.from("menu_items").select("id, name, price, is_veg, description, options, available").eq("hotel_id", ctx.hotelId),
     admin.from("catalog_items").select("id, module, name, price, duration_minutes, description").eq("hotel_id", ctx.hotelId).eq("available", true),
     admin.from("stays").select("primary_guest_name, check_in, check_out").eq("id", ctx.stayId).single(),
+    admin.from("knowledge_entries").select("title, body").eq("hotel_id", ctx.hotelId).limit(40),
   ]);
+  const mods = ((hotel?.modules as Record<string, boolean>) ?? {});
+  if (mods.ai_concierge === false) return new Response("The concierge is currently unavailable", { status: 403 });
+  const menu = mods.restaurant === false ? [] : menuAll;
+  const catalog = (catalogAll ?? []).filter((c) => mods[c.module] !== false);
+  const disabled = Object.entries(mods).filter(([, v]) => v === false).map(([k]) => k);
 
   const system = `You are the AI concierge of ${hotel?.name}. Guest is in room ${ctx.roomNumber} (stay of ${stay?.primary_guest_name}, ${stay?.check_in?.slice(0, 10)} to ${stay?.check_out?.slice(0, 10)}).
 Current time: ${new Date().toISOString()} (hotel timezone Asia/Kolkata, UTC+5:30). Currency ${hotel?.currency}. Tax ${Number(hotel?.tax_rate) * 100}% added to charges.
@@ -48,8 +54,11 @@ Rules:
 - Use exact ids from the lists below. Ask a short question if something required (e.g. spice level, time) is missing.
 - If the guest is upset, has an emergency, or asks for a human, call escalate_to_human and give the reception phone.
 - Never invent menu items, prices, or facilities.
+- Orders above ${hotel?.currency} ${hotel?.approval_threshold} need staff approval before they're confirmed; mention this when relevant.
+${disabled.length ? `- These services are switched off at this hotel; never offer them: ${disabled.join(", ")}.` : ""}
 Hotel rules: ${hotel?.ai_rules || "none"}
 Hotel info: ${JSON.stringify(hotel?.info)}
+Knowledge base: ${JSON.stringify(knowledge ?? [])}
 MENU: ${JSON.stringify((menu ?? []).filter((m) => m.available))}
 SERVICES: ${JSON.stringify(catalog)}`;
 

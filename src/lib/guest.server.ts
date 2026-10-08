@@ -19,6 +19,7 @@ export type StayContext = {
   roomNumber: string;
   roomChargeEnabled: boolean;
   taxRate: number;
+  approvalThreshold: number;
 };
 
 export async function resolveStay(userId: string): Promise<StayContext | null> {
@@ -32,7 +33,7 @@ export async function resolveStay(userId: string): Promise<StayContext | null> {
     .limit(1);
   const g = guests?.[0] as any;
   if (!g) return null;
-  const { data: hotel } = await admin.from("hotels").select("tax_rate").eq("id", g.hotel_id).single();
+  const { data: hotel } = await admin.from("hotels").select("tax_rate, approval_threshold").eq("id", g.hotel_id).single();
   return {
     stayId: g.stay_id,
     hotelId: g.hotel_id,
@@ -41,6 +42,7 @@ export async function resolveStay(userId: string): Promise<StayContext | null> {
     roomNumber: g.stays.rooms?.number ?? "",
     roomChargeEnabled: g.stays.room_charge_enabled,
     taxRate: Number(hotel?.tax_rate ?? 0),
+    approvalThreshold: Number(hotel?.approval_threshold ?? 0),
   };
 }
 
@@ -96,15 +98,19 @@ export async function placeOrderCore(
   const tax = Math.round(subtotal * ctx.taxRate);
   const total = subtotal + tax;
   const now = new Date().toISOString();
+  const needsApproval = ctx.approvalThreshold > 0 && total > ctx.approvalThreshold;
+  const status = needsApproval ? "pending_approval" : "received";
 
   const { data: order, error } = await admin.from("orders").insert({
     hotel_id: ctx.hotelId, stay_id: ctx.stayId, payer_guest_id: ctx.guestId,
     destination_room_id: destinationRoomId, subtotal, tax, total, notes: input.notes?.slice(0, 500) ?? null,
     source: input.source ?? "browse", idempotency_key: input.idempotencyKey,
-    status_history: [{ status: "received", at: now }],
-  }).select("id, total").single();
+    status, approval_status: needsApproval ? "pending" : "approved",
+    status_history: [{ status, at: now }],
+  }).select("id, total, status").single();
   if (error) throw new Error(error.message);
   await admin.from("order_items").insert(lines.map((l) => ({ ...l, order_id: order.id })));
+  if (needsApproval) return order;
   await admin.from("folio_charges").insert({
     hotel_id: ctx.hotelId, stay_id: ctx.stayId, category: "Dining",
     description: `Room service · ${lines.map((l) => `${l.qty}× ${l.name}`).join(", ")}${destNumber !== ctx.roomNumber ? ` (to room ${destNumber})` : ""}`,
