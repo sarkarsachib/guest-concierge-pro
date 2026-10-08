@@ -58,3 +58,8 @@ function StayHome() {
     </main>
   );
 }
+
+function greetName(name: string | null | undefined, room: string | undefined) {
+  if (!name || name.includes("@") || /^Room \S+ Guest$/.test(name)) return `Room ${room ?? ""} Guest`;
+  return name.split(" ")[0];
+}
