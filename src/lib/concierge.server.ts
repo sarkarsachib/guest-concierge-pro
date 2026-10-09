@@ -40,8 +40,8 @@ export async function handleConcierge(request: Request) {
     admin.from("knowledge_entries").select("title, body").eq("hotel_id", ctx.hotelId).limit(40),
   ]);
   const mods = ((hotel?.modules as Record<string, boolean>) ?? {});
-  if (mods.ai_concierge === false) return new Response("The concierge is currently unavailable", { status: 403 });
-  const menu = mods.restaurant === false ? [] : menuAll;
+  if (mods["ai_concierge"] === false) return new Response("The concierge is currently unavailable", { status: 403 });
+  const menu = mods["restaurant"] === false ? [] : menuAll;
   const catalog = (catalogAll ?? []).filter((c) => mods[c.module] !== false);
   const disabled = Object.entries(mods).filter(([, v]) => v === false).map(([k]) => k);
 
